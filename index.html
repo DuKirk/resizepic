@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhotoBench — resize, crop &amp; compress</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topnav">
+    <div class="brand">
+      <div class="logo">◧</div>
+      <div class="name">Photo<span class="accent">Bench</span></div>
+    </div>
+    <div class="navlinks">
+      <span class="current" data-navtool="resize">Resize</span>
+      <span data-navtool="crop">Crop</span>
+      <span data-navtool="compress">Compress</span>
+      <span data-navtool="convert">Convert</span>
+    </div>
+    <div class="navright">
+      <div class="privacy-pill"><span class="dot"></span> Runs in your browser — files never leave your device</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>Resize, crop &amp; compress your photos</h1>
+    <p>Free, no signup, and nothing is ever uploaded to a server.</p>
+  </div>
+
+  <div class="wrap">
+
+    <div class="dropzone" id="dropzone">
+      <div class="icon">⇧</div>
+      <strong>Drag &amp; drop your image here</strong>
+      <span class="sub">or click to choose a file — JPG, PNG or WebP</span>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <div class="bench" id="bench">
+
+      <!-- sidebar -->
+      <div class="sidebar">
+
+        <div class="card">
+          <h2><span class="num">1</span>Upload image</h2>
+          <button class="btn block" id="chooseAnother">Choose a different photo</button>
+        </div>
+
+        <div class="card">
+          <h2><span class="num">2</span>Edit</h2>
+          <div class="toolpills">
+            <button data-tool="resize" class="active">Resize</button>
+            <button data-tool="crop">Crop</button>
+            <button data-tool="compress">Compress</button>
+            <button data-tool="convert">Convert</button>
+          </div>
+
+          <!-- RESIZE -->
+          <div class="tool-panel active" data-panel="resize">
+            <div class="subtoggle">
+              <button class="sub-btn active" data-resizemode="dims">By Dimensions</button>
+              <button class="sub-btn" data-resizemode="pct">By Percentage</button>
+            </div>
+
+            <div class="resize-mode active" data-mode="dims">
+              <p class="helptext">Set exact pixel dimensions — custom width and height, or one of the presets below.</p>
+              <div class="field-row">
+                <label for="widthInput">Width</label>
+                <input type="number" id="widthInput" min="1">
+                <button class="link-toggle on" id="lockAspectBtn" title="Lock aspect ratio">🔗</button>
+                <label for="heightInput" style="min-width:auto;">Height</label>
+                <input type="number" id="heightInput" min="1">
+              </div>
+              <button class="btn btn-primary block" id="applyResize">Resize image</button>
+            </div>
+
+            <div class="resize-mode" data-mode="pct">
+              <p class="helptext">Scale the photo up or down by a percentage. Aspect ratio is always kept.</p>
+              <div class="slider-row">
+                <div class="slider-label"><span>Scale</span><strong id="pctValue">100%</strong></div>
+                <input type="range" id="pctSlider" min="1" max="200" value="100">
+              </div>
+              <div class="live-est" id="pctReadout">New size: —</div>
+              <button class="btn btn-primary block" id="applyPct">Resize by percentage</button>
+            </div>
+          </div>
+
+          <!-- CROP -->
+          <div class="tool-panel" data-panel="crop">
+            <p class="helptext">Drag any corner or edge of the box to reshape it, or drag inside the box to move it. Then apply.</p>
+            <div class="btn-row">
+              <button class="btn block" id="resetCrop">Reset box</button>
+              <button class="btn btn-primary block" id="applyCrop">Apply crop</button>
+            </div>
+          </div>
+
+          <!-- COMPRESS -->
+          <div class="tool-panel" data-panel="compress">
+            <div class="subtoggle">
+              <button class="sub-btn active" data-compressmode="target">Target Size</button>
+              <button class="sub-btn" data-compressmode="quality">Quality Slider</button>
+            </div>
+
+            <div class="compress-mode active" data-mode="target">
+              <p class="helptext">Tell it a target file size and it finds the best quality that fits — e.g. shrink a 2 MB photo down to 100 KB. Works for JPG and WebP; PNG is lossless so it just re-saves.</p>
+              <div class="field-row">
+                <label for="targetKb">Target</label>
+                <input type="number" id="targetKb" min="1" value="100">
+                <span style="color:var(--ink-soft);font-size:13px;">KB</span>
+              </div>
+              <div class="field-row">
+                <label for="formatSelect">Format</label>
+                <select id="formatSelect">
+                  <option value="image/jpeg">Compress JPG</option>
+                  <option value="image/webp">Compress WebP</option>
+                  <option value="image/png">Compress PNG</option>
+                </select>
+              </div>
+              <button class="btn btn-primary block" id="compressBtn">Compress to target size</button>
+              <p class="status-msg" id="compressStatus"></p>
+            </div>
+
+            <div class="compress-mode" data-mode="quality">
+              <p class="helptext">Drag the slider and see the resulting file size update live, then apply it.</p>
+              <div class="field-row">
+                <label for="qualityFormatSelect">Format</label>
+                <select id="qualityFormatSelect">
+                  <option value="image/jpeg">JPG</option>
+                  <option value="image/webp">WebP</option>
+                </select>
+              </div>
+              <div class="slider-row">
+                <div class="slider-label"><span>Quality</span><strong id="qualityValue">80%</strong></div>
+                <input type="range" id="qualitySlider" min="1" max="100" value="80">
+              </div>
+              <div class="live-est" id="qualityReadout">Estimated size: —</div>
+              <button class="btn btn-primary block" id="applyQuality">Apply quality</button>
+            </div>
+          </div>
+
+          <!-- CONVERT -->
+          <div class="tool-panel" data-panel="convert">
+            <p class="helptext">Change the file format — handy conversions like JPG↔PNG, JPG↔WebP and PNG↔WebP.</p>
+            <div class="field-row">
+              <label for="convertFormat">To</label>
+              <select id="convertFormat">
+                <option value="image/jpeg">JPG</option>
+                <option value="image/png">PNG</option>
+                <option value="image/webp">WebP</option>
+              </select>
+            </div>
+            <div class="field-row" id="convertQualityRow">
+              <label for="convertQuality">Quality</label>
+              <input type="range" id="convertQuality" min="1" max="100" value="92" style="width:auto;flex:1;">
+              <span id="convertQualityValue" style="font-size:13px;color:var(--ink-soft);min-width:36px;text-align:right;">92%</span>
+            </div>
+            <button class="btn btn-primary block" id="convertBtn">Convert image</button>
+            <p class="status-msg" id="convertStatus"></p>
+          </div>
+        </div>
+
+        <div class="reset-link"><a id="startOver">Start over with a new photo</a></div>
+      </div>
+
+      <!-- preview -->
+      <div class="card preview-card">
+        <div class="preview-head">
+          <h2 style="margin:0;">Preview</h2>
+          <div class="badge-row">
+            <span class="badge" id="badgeOriginal">Original: — · —</span>
+            <span class="badge" id="badgeCurrent">Current: — · —</span>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="stage-inner" id="stageInner">
+            <img id="stageImg" src="" alt="Your photo">
+            <div class="crop-box" id="cropBox" style="display:none;">
+              <div class="grid-line v1"></div><div class="grid-line v2"></div>
+              <div class="grid-line h1"></div><div class="grid-line h2"></div>
+              <div class="handle corner tl"></div>
+              <div class="handle corner tr"></div>
+              <div class="handle corner bl"></div>
+              <div class="handle corner br"></div>
+              <div class="handle edge t"></div>
+              <div class="handle edge b"></div>
+              <div class="handle edge l"></div>
+              <div class="handle edge r"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-strip">
+          <a href="#" class="btn btn-green" id="downloadBtn" download="photobench-export.jpg" style="display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;">⬇ Download result</a>
+          <button class="btn" id="previewFullBtn">👁 Preview full size</button>
+        </div>
+
+        <div class="presets-strip">
+          <p>Need a common size?</p>
+          <div class="preset-grid">
+            <button class="preset-btn" data-w="1080" data-h="1080">Instagram Post<span class="dims">1080 × 1080</span></button>
+            <button class="preset-btn" data-w="1080" data-h="1920">Instagram Story<span class="dims">1080 × 1920</span></button>
+            <button class="preset-btn" data-w="1280" data-h="720">YouTube Thumbnail<span class="dims">1280 × 720</span></button>
+            <button class="preset-btn" data-w="2480" data-h="3508">A4 (Print)<span class="dims">2480 × 3508</span></button>
+            <button class="preset-btn" data-w="800" data-h="600">Web (Fast Load)<span class="dims">800 × 600</span></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<script src="script.js"></script>
+</body>
+</html>
